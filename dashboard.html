@@ -209,54 +209,6 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
-            order: 1;
-        }
-        
-        .chart-item.order-right {
-            order: 2;
-        }
-        
-        .chart-wrapper {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-            flex: 1;
-        }
-        
-        .chart-controls {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            padding: 0 30px;
-            align-items: center;
-        }
-        
-        .chart-controls span {
-            font-size: 0.85em;
-            color: #666;
-            min-width: 100px;
-        }
-        
-        .move-btn {
-            background: #0052a3;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 500;
-            transition: all 0.3s;
-            min-width: 45px;
-        }
-        
-        .move-btn:hover {
-            background: #003d7a;
-            transform: scale(1.05);
-        }
-        
-        .move-btn:active {
-            transform: scale(0.98);
         }
         
         #chartContas, #chartEvolucao, #chartGanho, #chartGastos {
@@ -517,37 +469,23 @@
                         </div>
                     </div>
                     
-                    <div class="chart-controls">
-                        <span>Ordenar Gráficos:</span>
-                        <button class="move-btn" onclick="moveChart('contasBar', 'left')">← Esquerda</button>
-                        <button class="move-btn" onclick="moveChart('contasBar', 'right')">Direita →</button>
-                    </div>
                     <div class="chart">
                         <h3>Top Contas</h3>
-                        <div class="chart-wrapper" id="contasWrapper">
-                            <div class="chart-item" id="contasBar">
-                                <div id="chartContas" style="height: 600px;"></div>
-                            </div>
-                            <div class="chart-item" id="contasPie">
-                                <div id="chartContasPie" style="height: 350px;"></div>
-                            </div>
+                        <div class="chart-item">
+                            <div id="chartContas" style="height: 600px;"></div>
+                        </div>
+                        <div class="chart-item">
+                            <div id="chartContasPie" style="height: 350px;"></div>
                         </div>
                     </div>
                     
-                    <div class="chart-controls">
-                        <span>Ordenar Gráficos:</span>
-                        <button class="move-btn" onclick="moveChart('evolucaoBar', 'left')">← Esquerda</button>
-                        <button class="move-btn" onclick="moveChart('evolucaoBar', 'right')">Direita →</button>
-                    </div>
                     <div class="chart">
                         <h3>Evolucao Mensal</h3>
-                        <div class="chart-wrapper" id="evolucaoWrapper">
-                            <div class="chart-item" id="evolucaoBar">
-                                <div id="chartEvolucao" style="height: 500px;"></div>
-                            </div>
-                            <div class="chart-item" id="evolucaoPie">
-                                <div id="chartEvolucaoPie" style="height: 350px;"></div>
-                            </div>
+                        <div class="chart-item">
+                            <div id="chartEvolucao" style="height: 500px;"></div>
+                        </div>
+                        <div class="chart-item">
+                            <div id="chartEvolucaoPie" style="height: 350px;"></div>
                         </div>
                     </div>
                 </div>
@@ -586,20 +524,13 @@
                         </div>
                     </div>
                     
-                    <div class="chart-controls">
-                        <span>Ordenar Gráficos:</span>
-                        <button class="move-btn" onclick="moveChart('ganhoBar', 'left')">← Esquerda</button>
-                        <button class="move-btn" onclick="moveChart('ganhoBar', 'right')">Direita →</button>
-                    </div>
                     <div class="chart">
                         <h3>Entrada vs Saida</h3>
-                        <div class="chart-wrapper" id="ganhoWrapper">
-                            <div class="chart-item" id="ganhoBar">
-                                <div id="chartGanho" style="height: 600px;"></div>
-                            </div>
-                            <div class="chart-item" id="ganhoPie">
-                                <div id="chartGanhoPie" style="height: 350px;"></div>
-                            </div>
+                        <div class="chart-item">
+                            <div id="chartGanho" style="height: 600px;"></div>
+                        </div>
+                        <div class="chart-item">
+                            <div id="chartGanhoPie" style="height: 600px;"></div>
                         </div>
                     </div>
                 </div>
@@ -638,20 +569,13 @@
                         </div>
                     </div>
                     
-                    <div class="chart-controls">
-                        <span>Ordenar Gráficos:</span>
-                        <button class="move-btn" onclick="moveChart('gastosBar', 'left')">← Esquerda</button>
-                        <button class="move-btn" onclick="moveChart('gastosBar', 'right')">Direita →</button>
-                    </div>
                     <div class="chart">
                         <h3>Top Gastos</h3>
-                        <div class="chart-wrapper" id="gastosWrapper">
-                            <div class="chart-item" id="gastosBar">
-                                <div id="chartGastos" style="height: 600px;"></div>
-                            </div>
-                            <div class="chart-item" id="gastosPie">
-                                <div id="chartGastosPie" style="height: 350px;"></div>
-                            </div>
+                        <div class="chart-item">
+                            <div id="chartGastos" style="height: 600px;"></div>
+                        </div>
+                        <div class="chart-item">
+                            <div id="chartGastosPie" style="height: 350px;"></div>
                         </div>
                     </div>
                 </div>
@@ -1262,39 +1186,7 @@
             return 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
         
-        function moveChart(chartId, direction) {
-            const elem = document.getElementById(chartId);
-            if (!elem) return;
-            
-            if (direction === 'right') {
-                elem.classList.add('order-right');
-            } else {
-                elem.classList.remove('order-right');
-            }
-            
-            // Salvar preferência
-            const orderData = JSON.parse(localStorage.getItem('chartOrders') || '{}');
-            orderData[chartId] = direction === 'right' ? 'right' : 'left';
-            localStorage.setItem('chartOrders', JSON.stringify(orderData));
-        }
-        
-        function restoreChartOrders() {
-            const orderData = JSON.parse(localStorage.getItem('chartOrders') || '{}');
-            for (const [chartId, direction] of Object.entries(orderData)) {
-                const elem = document.getElementById(chartId);
-                if (elem) {
-                    if (direction === 'right') {
-                        elem.classList.add('order-right');
-                    } else {
-                        elem.classList.remove('order-right');
-                    }
-                }
-            }
-        }
-        
         window.addEventListener('load', function() {
-            restoreChartOrders();
-            
             const isGitHubPages = window.location.hostname.includes('github.io');
             const uploadFileBtn = document.getElementById('uploadFileBtn');
             const uploadStatus = document.getElementById('uploadStatus');
