@@ -1617,12 +1617,18 @@
             const elem = document.getElementById(chartId);
             if (!elem) return;
             
+            // O container é o item pai (chart-item)
+            const container = elem.closest('.chart-item');
+            
             if (dimension === 'height') {
                 elem.style.height = value + 'px';
                 const valueElem = document.getElementById(chartId + '-height');
                 if (valueElem) valueElem.textContent = value;
             } else if (dimension === 'width') {
-                elem.style.width = value + '%';
+                // Ajusta a largura do container (chart-item)
+                if (container) {
+                    container.style.flex = '0 0 ' + value + '%';
+                }
                 const valueElem = document.getElementById(chartId + '-width');
                 if (valueElem) valueElem.textContent = value;
             }
@@ -1645,6 +1651,8 @@
                 const elem = document.getElementById(chartId);
                 if (!elem) continue;
                 
+                const container = elem.closest('.chart-item');
+                
                 if (dimensions.height) {
                     elem.style.height = dimensions.height + 'px';
                     const valueElem = document.getElementById(chartId + '-height');
@@ -1652,7 +1660,9 @@
                 }
                 
                 if (dimensions.width) {
-                    elem.style.width = dimensions.width + '%';
+                    if (container) {
+                        container.style.flex = '0 0 ' + dimensions.width + '%';
+                    }
                     const valueElem = document.getElementById(chartId + '-width');
                     if (valueElem) valueElem.textContent = dimensions.width;
                 }
