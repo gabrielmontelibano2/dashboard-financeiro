@@ -335,87 +335,50 @@
             border-color: rgba(0, 82, 163, 0.4);
         }
         
-        .size-control-group {
-            display: none;
-            background: linear-gradient(135deg, rgba(0, 82, 163, 0.08), rgba(0, 82, 163, 0.03));
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 12px;
-            gap: 15px;
-            border: 1px solid rgba(0, 82, 163, 0.15);
+        /* Resize handles - Estilo Power BI */
+        .resize-handle {
+            position: absolute;
+            background: rgba(0, 82, 163, 0.6);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
         }
         
-        .chart-item.edit-mode .size-control-group {
-            display: flex;
-            flex-direction: column;
+        .chart-item.edit-mode .resize-handle {
+            opacity: 1;
         }
         
-        .size-control {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            font-size: 0.85em;
+        .resize-handle-right {
+            right: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            cursor: col-resize;
         }
         
-        .size-control label {
-            color: #0052a3;
-            font-weight: 600;
-            min-width: 60px;
+        .resize-handle-bottom {
+            bottom: 0;
+            left: 0;
+            height: 8px;
+            width: 100%;
+            cursor: row-resize;
         }
         
-        .size-control input[type="range"] {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-            cursor: pointer;
+        .resize-handle-corner {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 16px;
+            height: 16px;
+            cursor: nwse-resize;
+            background: linear-gradient(135deg, transparent 50%, #0052a3 50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 11;
         }
         
-        .size-control input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #0052a3;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 82, 163, 0.3);
-        }
-        
-        .size-control input[type="range"]::-webkit-slider-thumb:hover {
-            background: #003d7a;
-            transform: scale(1.15);
-            box-shadow: 0 2px 8px rgba(0, 82, 163, 0.5);
-        }
-        
-        .size-control input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #0052a3;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 82, 163, 0.3);
-        }
-        
-        .size-control input[type="range"]::-moz-range-thumb:hover {
-            background: #003d7a;
-            transform: scale(1.15);
-            box-shadow: 0 2px 8px rgba(0, 82, 163, 0.5);
-        }
-        
-        .size-value {
-            color: #0052a3;
-            font-weight: 700;
-            min-width: 50px;
-            text-align: right;
-            background: rgba(0, 82, 163, 0.1);
-            padding: 4px 8px;
-            border-radius: 4px;
+        .chart-item.edit-mode .resize-handle-corner {
+            opacity: 1;
         }
         
         #chartContas, #chartEvolucao, #chartGanho, #chartGastos {
@@ -685,18 +648,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartContas')">✏️</button>
                                 </div>
                                 <div id="chartContas" style="height: 600px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="1000" value="600" step="50" oninput="updateChartSize('chartContas', 'height', this.value)">
-                                        <span class="size-value"><span id="contas-height">600</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartContas', 'width', this.value)">
-                                        <span class="size-value"><span id="contas-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                             <div class="chart-item" id="item-chartContasPie">
                                 <div class="chart-item-header">
@@ -704,18 +655,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartContasPie')">✏️</button>
                                 </div>
                                 <div id="chartContasPie" style="height: 350px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="800" value="350" step="50" oninput="updateChartSize('chartContasPie', 'height', this.value)">
-                                        <span class="size-value"><span id="contasPie-height">350</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartContasPie', 'width', this.value)">
-                                        <span class="size-value"><span id="contasPie-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -729,18 +668,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartEvolucao')">✏️</button>
                                 </div>
                                 <div id="chartEvolucao" style="height: 500px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="900" value="500" step="50" oninput="updateChartSize('chartEvolucao', 'height', this.value)">
-                                        <span class="size-value"><span id="evolucao-height">500</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartEvolucao', 'width', this.value)">
-                                        <span class="size-value"><span id="evolucao-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                             <div class="chart-item" id="item-chartEvolucaoPie">
                                 <div class="chart-item-header">
@@ -748,18 +675,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartEvolucaoPie')">✏️</button>
                                 </div>
                                 <div id="chartEvolucaoPie" style="height: 350px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="800" value="350" step="50" oninput="updateChartSize('chartEvolucaoPie', 'height', this.value)">
-                                        <span class="size-value"><span id="evolucaoPie-height">350</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartEvolucaoPie', 'width', this.value)">
-                                        <span class="size-value"><span id="evolucaoPie-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -808,18 +723,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGanho')">✏️</button>
                                 </div>
                                 <div id="chartGanho" style="height: 600px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="1000" value="600" step="50" oninput="updateChartSize('chartGanho', 'height', this.value)">
-                                        <span class="size-value"><span id="ganho-height">600</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartGanho', 'width', this.value)">
-                                        <span class="size-value"><span id="ganho-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                             <div class="chart-item" id="item-chartGanhoPie">
                                 <div class="chart-item-header">
@@ -827,18 +730,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGanhoPie')">✏️</button>
                                 </div>
                                 <div id="chartGanhoPie" style="height: 350px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="800" value="350" step="50" oninput="updateChartSize('chartGanhoPie', 'height', this.value)">
-                                        <span class="size-value"><span id="ganhoPie-height">350</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartGanhoPie', 'width', this.value)">
-                                        <span class="size-value"><span id="ganhoPie-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -887,18 +778,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGastos')">✏️</button>
                                 </div>
                                 <div id="chartGastos" style="height: 600px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="1000" value="600" step="50" oninput="updateChartSize('chartGastos', 'height', this.value)">
-                                        <span class="size-value"><span id="gastos-height">600</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartGastos', 'width', this.value)">
-                                        <span class="size-value"><span id="gastos-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                             <div class="chart-item" id="item-chartGastosPie">
                                 <div class="chart-item-header">
@@ -906,18 +785,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGastosPie')">✏️</button>
                                 </div>
                                 <div id="chartGastosPie" style="height: 350px; width: 100%;"></div>
-                                <div class="size-control-group">
-                                    <div class="size-control">
-                                        <label>Altura:</label>
-                                        <input type="range" min="300" max="800" value="350" step="50" oninput="updateChartSize('chartGastosPie', 'height', this.value)">
-                                        <span class="size-value"><span id="gastosPie-height">350</span>px</span>
-                                    </div>
-                                    <div class="size-control">
-                                        <label>Largura:</label>
-                                        <input type="range" min="50" max="100" value="100" step="5" oninput="updateChartSize('chartGastosPie', 'width', this.value)">
-                                        <span class="size-value"><span id="gastosPie-width">100</span>%</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -1611,38 +1478,123 @@
             if (btn) {
                 btn.classList.toggle('active');
             }
+            
+            // Adicionar/remover handles de resize
+            if (elem.classList.contains('edit-mode')) {
+                addResizeHandles(elem);
+            } else {
+                removeResizeHandles(elem);
+            }
         }
         
-        function updateChartSize(chartId, dimension, value) {
-            const elem = document.getElementById(chartId);
-            if (!elem) return;
+        function addResizeHandles(elem) {
+            // Remover handles antigos se existirem
+            const oldHandles = elem.querySelectorAll('.resize-handle');
+            oldHandles.forEach(h => h.remove());
             
-            // O container é o item pai (chart-item)
-            const container = elem.closest('.chart-item');
+            // Criar handles
+            const rightHandle = document.createElement('div');
+            rightHandle.className = 'resize-handle resize-handle-right';
+            rightHandle.addEventListener('mousedown', (e) => startResize(e, elem, 'right'));
+            elem.appendChild(rightHandle);
             
-            if (dimension === 'height') {
-                elem.style.height = value + 'px';
-                const valueElem = document.getElementById(chartId + '-height');
-                if (valueElem) valueElem.textContent = value;
-            } else if (dimension === 'width') {
-                // Ajusta a largura do container (chart-item)
-                if (container) {
-                    container.style.flex = '0 0 ' + value + '%';
+            const bottomHandle = document.createElement('div');
+            bottomHandle.className = 'resize-handle resize-handle-bottom';
+            bottomHandle.addEventListener('mousedown', (e) => startResize(e, elem, 'bottom'));
+            elem.appendChild(bottomHandle);
+            
+            const cornerHandle = document.createElement('div');
+            cornerHandle.className = 'resize-handle resize-handle-corner';
+            cornerHandle.addEventListener('mousedown', (e) => startResize(e, elem, 'corner'));
+            elem.appendChild(cornerHandle);
+        }
+        
+        function removeResizeHandles(elem) {
+            const handles = elem.querySelectorAll('.resize-handle');
+            handles.forEach(h => h.remove());
+        }
+        
+        let resizeData = {
+            active: false,
+            elem: null,
+            direction: null,
+            startX: 0,
+            startY: 0,
+            startWidth: 0,
+            startHeight: 0
+        };
+        
+        function startResize(e, elem, direction) {
+            e.preventDefault();
+            
+            resizeData.active = true;
+            resizeData.elem = elem;
+            resizeData.direction = direction;
+            resizeData.startX = e.clientX;
+            resizeData.startY = e.clientY;
+            resizeData.startWidth = elem.offsetWidth;
+            resizeData.startHeight = elem.offsetHeight;
+            
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+        }
+        
+        function doResize(e) {
+            if (!resizeData.active) return;
+            
+            const elem = resizeData.elem;
+            const direction = resizeData.direction;
+            const deltaX = e.clientX - resizeData.startX;
+            const deltaY = e.clientY - resizeData.startY;
+            
+            if (direction === 'right' || direction === 'corner') {
+                // Ajustar largura do container (flex)
+                const container = elem.parentElement;
+                const newWidth = resizeData.startWidth + deltaX;
+                const containerWidth = container.offsetWidth;
+                const percentWidth = Math.max(50, Math.min(100, (newWidth / containerWidth) * 100));
+                elem.style.flex = '0 0 ' + percentWidth + '%';
+            }
+            
+            if (direction === 'bottom' || direction === 'corner') {
+                // Ajustar altura do gráfico
+                const chartDiv = elem.querySelector('[id^="chart"]');
+                if (chartDiv) {
+                    const newHeight = Math.max(250, resizeData.startHeight + deltaY);
+                    chartDiv.style.height = newHeight + 'px';
+                    
+                    // Salvar altura
+                    const chartId = chartDiv.id;
+                    const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
+                    if (!sizes[chartId]) sizes[chartId] = {};
+                    sizes[chartId].height = newHeight;
+                    localStorage.setItem('chartSizes', JSON.stringify(sizes));
+                    
+                    // Redraw
+                    if (typeof Plotly !== 'undefined') {
+                        Plotly.Plots.resize(chartId);
+                    }
                 }
-                const valueElem = document.getElementById(chartId + '-width');
-                if (valueElem) valueElem.textContent = value;
             }
             
-            // Salvar no localStorage
-            const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
-            if (!sizes[chartId]) sizes[chartId] = {};
-            sizes[chartId][dimension] = value;
-            localStorage.setItem('chartSizes', JSON.stringify(sizes));
-            
-            // Redraw
-            if (typeof Plotly !== 'undefined') {
-                Plotly.Plots.resize(chartId);
+            // Salvar largura
+            if (direction === 'right' || direction === 'corner') {
+                const chartDiv = elem.querySelector('[id^="chart"]');
+                if (chartDiv) {
+                    const chartId = chartDiv.id;
+                    const percentWidth = parseFloat(elem.style.flex.match(/[\d.]+/)[0]);
+                    const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
+                    if (!sizes[chartId]) sizes[chartId] = {};
+                    sizes[chartId].width = Math.round(percentWidth);
+                    localStorage.setItem('chartSizes', JSON.stringify(sizes));
+                }
             }
+        }
+        
+        function stopResize() {
+            resizeData.active = false;
+            document.removeEventListener('mousemove', doResize);
+            document.removeEventListener('mouseup', stopResize);
         }
         
         function restoreChartSizes() {
@@ -1652,19 +1604,14 @@
                 if (!elem) continue;
                 
                 const container = elem.closest('.chart-item');
+                if (!container) continue;
                 
                 if (dimensions.height) {
                     elem.style.height = dimensions.height + 'px';
-                    const valueElem = document.getElementById(chartId + '-height');
-                    if (valueElem) valueElem.textContent = dimensions.height;
                 }
                 
                 if (dimensions.width) {
-                    if (container) {
-                        container.style.flex = '0 0 ' + dimensions.width + '%';
-                    }
-                    const valueElem = document.getElementById(chartId + '-width');
-                    if (valueElem) valueElem.textContent = dimensions.width;
+                    container.style.flex = '0 0 ' + dimensions.width + '%';
                 }
             }
         }
