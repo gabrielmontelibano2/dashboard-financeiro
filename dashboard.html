@@ -254,7 +254,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-            opacity: 0;
+            opacity: 1;
             transition: opacity 0.3s;
             font-size: 0.8em;
             color: #666;
@@ -1514,49 +1514,7 @@
             });
         }
         
-        function toggleEditMode(itemId) {
-            const elem = document.getElementById(itemId);
-            if (!elem) return;
-            
-            elem.classList.toggle('edit-mode');
-        }
-        
-        function updateChartSize(chartId, height) {
-            const elem = document.getElementById(chartId);
-            if (!elem) return;
-            
-            elem.style.height = height + 'px';
-            
-            // Atualizar o valor exibido
-            const valueElem = document.getElementById(chartId + '-height');
-            if (valueElem) valueElem.textContent = height;
-            
-            // Salvar no localStorage
-            const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
-            sizes[chartId] = height;
-            localStorage.setItem('chartSizes', JSON.stringify(sizes));
-            
-            // Redraw
-            if (typeof Plotly !== 'undefined') {
-                Plotly.Plots.resize(chartId);
-            }
-        }
-        
-        function restoreChartSizes() {
-            const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
-            for (const [chartId, height] of Object.entries(sizes)) {
-                const elem = document.getElementById(chartId);
-                const valueElem = document.getElementById(chartId + '-height');
-                if (elem) {
-                    elem.style.height = height + 'px';
-                }
-                if (valueElem) valueElem.textContent = height;
-            }
-        }
-        
         window.addEventListener('load', function() {
-            restoreChartSizes();
-            
             const isGitHubPages = window.location.hostname.includes('github.io');
             const uploadFileBtn = document.getElementById('uploadFileBtn');
             const uploadStatus = document.getElementById('uploadStatus');
