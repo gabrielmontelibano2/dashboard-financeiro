@@ -229,12 +229,14 @@ def add_cors_headers(response):
 # ==================== MAIN ====================
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    
     print("\n" + "="*60)
     print("DASHBOARD FINANCEIRO - SERVIDOR ATIVO")
     print("="*60)
-    print(f"\n[✓] Servidor rodando em http://0.0.0.0:5000")
-    print(f"[✓] Acesse localmente: http://localhost:5000")
-    print(f"[✓] Acesse remotamente: http://<seu-ip>:5000")
+    print(f"\n[✓] Servidor rodando em http://0.0.0.0:{port}")
+    print(f"[✓] Acesse localmente: http://localhost:{port}")
+    print(f"[✓] Acesse remotamente: http://<seu-ip>:{port}")
     print(f"\n[✓] CORS habilitado para todos os domínios")
     print(f"[✓] Máximo de upload: 16MB")
     print(f"[✓] Diretório de scripts: {SCRIPT_DIR}")
@@ -243,4 +245,4 @@ if __name__ == '__main__':
     print("="*60 + "\n")
     
     sys.stdout.flush()
-    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)

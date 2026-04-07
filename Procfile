@@ -1,1 +1,1 @@
-web: python servidor_dash.py
+web: gunicorn --bind 0.0.0.0:$PORT --timeout 120 servidor_dash:app
