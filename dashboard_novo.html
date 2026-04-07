@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financeiro</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f7fa; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: linear-gradient(135deg, #0052a3 0%, #003d7a 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 { font-size: 1.5em; flex: 1; }
+        
+        .upload-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .upload-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover { background: rgba(255,255,255,0.3); }
+        
+        #uploadStatus {
+            color: #fbbf24;
+            font-size: 0.9em;
+            min-width: 200px;
+        }
+        
+        #fileInput { display: none; }
+        
+        .main {
+            margin-top: 70px;
+            margin-bottom: 50px;
+            padding: 30px;
+            flex: 1;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #0052a3;
+            border-bottom-color: #0052a3;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        
+        .section h2 {
+            color: #0052a3;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric {
+            background: linear-gradient(135deg, #e8f0ff 0%, #f0f4ff 100%);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #0052a3;
+        }
+        
+        .metric h3 {
+            color: #0052a3;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .metric .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0052a3;
+        }
+        
+        .chart {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+        }
+        
+        .chart h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #f3f4f6;
+            color: #666;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            border-top: 1px solid #ddd;
+            z-index: 999;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard Financeiro</h1>
+        <div class="upload-section">
+            <div id="uploadStatus"></div>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                [UPLOAD] Arquivo Excel
+            </button>
+            <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleUpload(event)">
+        </div>
+    </div>
+    
+    <div class="main">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('overview')">Visao Geral</button>
+            <button class="tab-btn" onclick="switchTab('contas')">Contas</button>
+            <button class="tab-btn" onclick="switchTab('ganhos')">Ganhos</button>
+            <button class="tab-btn" onclick="switchTab('gastos')">Gastos</button>
+        </div>
+        
+        <!-- TAB: VISAO GERAL -->
+        <div id="overview" class="tab-content active">
+            <div class="section">
+                <h2>Resumo Financeiro</h2>
+                <div id="overviewEmpty" class="empty-state">
+                    [INFO] Faça upload de um arquivo Excel para carregar os dados
+                </div>
+                <div id="overviewContent" style="display:none;">
+                    <div class="metrics">
+                        <div class="metric">
+                            <h3>Total Contas</h3>
+                            <div class="value" id="ovTotalContas">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Total Entrada</h3>
+                            <div class="value" id="ovTotalEntrada">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Total Saida</h3>
+                            <div class="value" id="ovTotalSaida">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Saldo</h3>
+                            <div class="value" id="ovSaldo">R$ 0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: CONTAS -->
+        <div id="contas" class="tab-content">
+            <div class="section">
+                <h2>Gestao de Contas</h2>
+                <div id="contasEmpty" class="empty-state">
+                    [INFO] Faça upload de um arquivo Excel para carregar os dados
+                </div>
+                <div id="contasContent" style="display:none;">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="filterConta">Filtrar por Conta:</label>
+                            <select id="filterConta" onchange="renderCharts()">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMes">Filtrar por Mes:</label>
+                            <select id="filterMes" onchange="renderCharts()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric">
+                            <h3>Total</h3>
+                            <div class="value" id="cTotalValue">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Media</h3>
+                            <div class="value" id="cMediaValue">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Maior</h3>
+                            <div class="value" id="cMaiorValue">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Menor</h3>
+                            <div class="value" id="cMenorValue">R$ 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart">
+                        <h3>Top Contas</h3>
+                        <div id="chartContas" style="height: 500px;"></div>
+                    </div>
+                    
+                    <div class="chart">
+                        <h3>Evolucao Mensal</h3>
+                        <div id="chartEvolucao" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: GANHOS -->
+        <div id="ganhos" class="tab-content">
+            <div class="section">
+                <h2>Analise de Ganhos</h2>
+                <div id="ganhosEmpty" class="empty-state">
+                    [INFO] Faça upload de um arquivo Excel para carregar os dados
+                </div>
+                <div id="ganhosContent" style="display:none;">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="filterMesGanho">Filtrar por Mes:</label>
+                            <select id="filterMesGanho" onchange="renderCharts()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric">
+                            <h3>Entrada</h3>
+                            <div class="value" id="gEntrada">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Saida</h3>
+                            <div class="value" id="gSaida">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Saldo</h3>
+                            <div class="value" id="gSaldo">R$ 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart">
+                        <h3>Entrada vs Saida</h3>
+                        <div id="chartGanho" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: GASTOS -->
+        <div id="gastos" class="tab-content">
+            <div class="section">
+                <h2>Analise de Gastos</h2>
+                <div id="gastosEmpty" class="empty-state">
+                    [INFO] Faça upload de um arquivo Excel para carregar os dados
+                </div>
+                <div id="gastosContent" style="display:none;">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="filterMesGasto">Filtrar por Mes:</label>
+                            <select id="filterMesGasto" onchange="renderCharts()">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric">
+                            <h3>Total Gastos</h3>
+                            <div class="value" id="gaTotal">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Maior Gasto</h3>
+                            <div class="value" id="gaMaior">R$ 0</div>
+                        </div>
+                        <div class="metric">
+                            <h3>Categorias</h3>
+                            <div class="value" id="gaQtd">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart">
+                        <h3>Top Gastos</h3>
+                        <div id="chartGastos" style="height: 500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Atualizado em 07 de Abril de 2026 | Dashboard Financeiro Pessoal
+    </div>
+    
+    <script>
+        // ESTADO GLOBAL - Inicializar VAZIO
+        let APP = {
+            data: null,
+            loaded: false
+        };
+        
+        // CARREGAR ARQUIVO
+        function handleUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            uploadExcel(file);
+            event.target.value = '';
+        }
+        
+        function uploadExcel(file) {
+            const status = document.getElementById('uploadStatus');
+            status.textContent = '[ENVIANDO...] ';
+            status.style.color = '#fbbf24';
+            
+            const formData = new FormData();
+            formData.append('arquivo', file);
+            
+            fetch('http://localhost:5000/processar-excel', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.contasData) throw new Error('Dados invalidos');
+                
+                // GUARDAR DADOS
+                APP.data = data;
+                APP.loaded = true;
+                
+                // POPULAR DROPDOWNS
+                populateFilters();
+                
+                // RENDERIZAR TUDO
+                renderCharts();
+                
+                // MOSTRAR CONTEUDO
+                showContent();
+                
+                status.textContent = '[OK] Carregado!';
+                status.style.color = '#10b981';
+                setTimeout(() => status.textContent = '', 2000);
+            })
+            .catch(err => {
+                status.textContent = '[ERRO] ' + err.message;
+                status.style.color = '#ef4444';
+                console.error(err);
+            });
+        }
+        
+        function populateFilters() {
+            const d = APP.data;
+            
+            // Contas
+            const filterConta = document.getElementById('filterConta');
+            filterConta.innerHTML = '<option value="">Todas</option>';
+            for (let conta of Object.keys(d.contasData).sort()) {
+                const opt = document.createElement('option');
+                opt.value = conta;
+                opt.textContent = conta;
+                filterConta.appendChild(opt);
+            }
+            
+            // Meses (contas)
+            const filterMes = document.getElementById('filterMes');
+            filterMes.innerHTML = '<option value="">Todos</option>';
+            for (let mes of d.mesesContas) {
+                const opt = document.createElement('option');
+                opt.value = mes;
+                opt.textContent = mes;
+                filterMes.appendChild(opt);
+            }
+            
+            // Meses (ganhos)
+            const filterMesGanho = document.getElementById('filterMesGanho');
+            filterMesGanho.innerHTML = '<option value="">Todos</option>';
+            for (let mes of d.ganhosData.meses) {
+                const opt = document.createElement('option');
+                opt.value = mes;
+                opt.textContent = mes;
+                filterMesGanho.appendChild(opt);
+            }
+            
+            // Meses (gastos)
+            const filterMesGasto = document.getElementById('filterMesGasto');
+            filterMesGasto.innerHTML = '<option value="">Todos</option>';
+            for (let mes of Object.keys(d.gastosData).sort()) {
+                const opt = document.createElement('option');
+                opt.value = mes;
+                opt.textContent = mes;
+                filterMesGasto.appendChild(opt);
+            }
+        }
+        
+        function showContent() {
+            // Overview
+            document.getElementById('overviewEmpty').style.display = 'none';
+            document.getElementById('overviewContent').style.display = 'block';
+            
+            // Contas
+            document.getElementById('contasEmpty').style.display = 'none';
+            document.getElementById('contasContent').style.display = 'block';
+            
+            // Ganhos
+            document.getElementById('ganhosEmpty').style.display = 'none';
+            document.getElementById('ganhosContent').style.display = 'block';
+            
+            // Gastos
+            document.getElementById('gastosEmpty').style.display = 'none';
+            document.getElementById('gastosContent').style.display = 'block';
+        }
+        
+        function renderCharts() {
+            if (!APP.loaded) return;
+            
+            const d = APP.data;
+            
+            // ===== OVERVIEW =====
+            let totalC = 0, totalE = 0, totalS = 0;
+            for (let c of Object.values(d.contasData)) totalC += c.reduce((a,b) => a+b, 0);
+            totalE = d.ganhosData.entrada.reduce((a,b) => a+b, 0);
+            totalS = d.ganhosData.saida.reduce((a,b) => a+b, 0);
+            
+            document.getElementById('ovTotalContas').textContent = format(totalC);
+            document.getElementById('ovTotalEntrada').textContent = format(totalE);
+            document.getElementById('ovTotalSaida').textContent = format(totalS);
+            document.getElementById('ovSaldo').textContent = format(totalE - totalS);
+            
+            // ===== CONTAS =====
+            renderContasCharts();
+            
+            // ===== GANHOS =====
+            renderGanhosCharts();
+            
+            // ===== GASTOS =====
+            renderGastosCharts();
+        }
+        
+        function renderContasCharts() {
+            const d = APP.data;
+            const filterConta = document.getElementById('filterConta').value;
+            const filterMes = document.getElementById('filterMes').value;
+            
+            let mesIdx = filterMes ? d.mesesContas.indexOf(filterMes) : -1;
+            
+            // Calcular valores
+            let contaVals = {};
+            if (filterConta) {
+                if (mesIdx >= 0) {
+                    contaVals[filterConta] = d.contasData[filterConta][mesIdx];
+                } else {
+                    contaVals[filterConta] = d.contasData[filterConta].reduce((a,b) => a+b, 0);
+                }
+            } else {
+                for (let conta in d.contasData) {
+                    if (mesIdx >= 0) {
+                        contaVals[conta] = d.contasData[conta][mesIdx];
+                    } else {
+                        contaVals[conta] = d.contasData[conta].reduce((a,b) => a+b, 0);
+                    }
+                }
+            }
+            
+            let sorted = Object.entries(contaVals).sort((a,b) => b[1] - a[1]);
+            let vals = sorted.map(x => x[1]);
+            let names = sorted.map(x => x[0]);
+            
+            // Métricas
+            let total = vals.reduce((a,b) => a+b, 0);
+            let media = vals.length > 0 ? total / vals.length : 0;
+            let maior = Math.max(...vals, 0);
+            let menor = Math.min(...vals, 0);
+            
+            document.getElementById('cTotalValue').textContent = format(total);
+            document.getElementById('cMediaValue').textContent = format(media);
+            document.getElementById('cMaiorValue').textContent = format(maior);
+            document.getElementById('cMenorValue').textContent = format(menor);
+            
+            // Gráfico
+            Plotly.newPlot('chartContas', [{
+                y: names.slice(0, 10),
+                x: vals.slice(0, 10),
+                orientation: 'h',
+                type: 'bar',
+                marker: { color: vals.slice(0, 10), colorscale: 'Blues' },
+                text: vals.slice(0, 10).map(v => format(v)),
+                textposition: 'outside'
+            }], { margin: {l: 150, r: 50}, height: 500 }, {displayModeBar: false});
+            
+            // Evolução
+            let evol_names = [], evol_vals = [];
+            if (filterConta) {
+                evol_names = d.mesesContas;
+                evol_vals = d.contasData[filterConta];
+            } else {
+                evol_names = d.mesesContas;
+                evol_vals = d.mesesContas.map((_, i) => {
+                    let sum = 0;
+                    for (let c in d.contasData) sum += d.contasData[c][i];
+                    return sum;
+                });
+            }
+            
+            Plotly.newPlot('chartEvolucao', [{
+                x: evol_names,
+                y: evol_vals,
+                mode: 'lines+markers',
+                line: { color: '#0052a3', width: 3 },
+                text: evol_vals.map(v => format(v)),
+                textposition: 'top center'
+            }], { margin: {l: 50, r: 50}, height: 400 }, {displayModeBar: false});
+        }
+        
+        function renderGanhosCharts() {
+            const d = APP.data;
+            const filterMes = document.getElementById('filterMesGanho').value;
+            
+            let meses = [], entrada = [], saida = [];
+            
+            if (filterMes) {
+                let idx = d.ganhosData.meses.indexOf(filterMes);
+                if (idx >= 0) {
+                    meses = [filterMes];
+                    entrada = [d.ganhosData.entrada[idx]];
+                    saida = [d.ganhosData.saida[idx]];
+                }
+            } else {
+                meses = d.ganhosData.meses;
+                entrada = d.ganhosData.entrada;
+                saida = d.ganhosData.saida;
+            }
+            
+            let totalE = entrada.reduce((a,b) => a+b, 0);
+            let totalS = saida.reduce((a,b) => a+b, 0);
+            let saldo = totalE - totalS;
+            
+            document.getElementById('gEntrada').textContent = format(totalE);
+            document.getElementById('gSaida').textContent = format(totalS);
+            document.getElementById('gSaldo').textContent = format(saldo);
+            
+            Plotly.newPlot('chartGanho', [
+                { name: 'Entrada', x: meses, y: entrada, type: 'bar', marker: {color: '#0052a3'}, text: entrada.map(v => format(v)), textposition: 'outside' },
+                { name: 'Saida', x: meses, y: saida, type: 'bar', marker: {color: '#ff6b35'}, text: saida.map(v => format(v)), textposition: 'outside' }
+            ], { barmode: 'group', margin: {l: 50, r: 50}, height: 500 }, {displayModeBar: false});
+        }
+        
+        function renderGastosCharts() {
+            const d = APP.data;
+            const filterMes = document.getElementById('filterMesGasto').value;
+            
+            let gastos = {};
+            if (filterMes) {
+                if (d.gastosData[filterMes]) {
+                    gastos = d.gastosData[filterMes];
+                }
+            } else {
+                for (let mes in d.gastosData) {
+                    for (let cat in d.gastosData[mes]) {
+                        gastos[cat] = (gastos[cat] || 0) + d.gastosData[mes][cat];
+                    }
+                }
+            }
+            
+            let sorted = Object.entries(gastos).sort((a,b) => b[1] - a[1]);
+            let vals = sorted.map(x => x[1]);
+            let names = sorted.map(x => x[0]);
+            
+            let total = vals.reduce((a,b) => a+b, 0);
+            let maior = vals.length > 0 ? vals[0] : 0;
+            
+            document.getElementById('gaTotal').textContent = format(total);
+            document.getElementById('gaMaior').textContent = format(maior);
+            document.getElementById('gaQtd').textContent = names.length;
+            
+            Plotly.newPlot('chartGastos', [{
+                y: names.slice(0, 10),
+                x: vals.slice(0, 10),
+                orientation: 'h',
+                type: 'bar',
+                marker: { color: vals.slice(0, 10), colorscale: 'Reds' },
+                text: vals.slice(0, 10).map(v => format(v)),
+                textposition: 'outside'
+            }], { margin: {l: 150, r: 50}, height: 500 }, {displayModeBar: false});
+        }
+        
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
+            
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function format(val) {
+            return 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        
+        // Verificar servidor ao carregar
+        window.addEventListener('load', function() {
+            fetch('http://localhost:5000/saude')
+                .then(r => r.json())
+                .then(() => console.log('[SERVER] Online'))
+                .catch(() => console.warn('[SERVER] Offline - verifique se app_server.py está rodando'));
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+📊 DASHBOARD FINANCEIRO - CHECKLIST DE PUBLICAÇÃO
+=================================================
+
+👤 Usuário GitHub: gabriel019pira
+🎯 Objetivo: Publicar dashboard online
+
+✅ ARQUIVOS PREPARADOS:
+  ✓ dashboard.html (interface)
+  ✓ servidor_dash.py (backend)
+  ✓ requirements.txt (dependências)
+  ✓ README.md (documentação)
+  ✓ .gitignore (exclusões git)
+  ✓ deploy.bat (script automático)
+  ✓ DEPLOY_RAPIDO.md (guia rápido)
+
+📋 PRÓXIMOS PASSOS:
+
+[1️⃣] CRIAR REPOSITÓRIO GITHUB
+   → Acesse: https://github.com/new
+   → Nome: dashboard-financeiro
+   → Tipo: Public
+   → Copie a URL do repositório
+
+[2️⃣] EXECUTAR DEPLOY
+   → Na pasta do projeto, duplo-clique em: deploy.bat
+   → Quando pedir URL, cole a URL do repositório
+   → Deixe completar (pode ser lento)
+
+[3️⃣] ATIVAR GITHUB PAGES
+   → Vá para Settings → Pages
+   → Source: main branch
+   → Salve e espere 5 minutos
+
+[4️⃣] ACESSAR ONLINE
+   → https://gabriel019pira.github.io/dashboard-financeiro
+
+🌐 RESULTADO:
+   • Seu dashboard visível online
+   • Código aberto no GitHub
+   • Pessoas podem clonar/fork
+   • GitHub Pages hospeda gratuitamente
+
+💡 DICA ADICIONAL:
+   Para upload de arquivo funcionar online:
+   → Configure em PythonAnywhere.com
+   → URL: https://gabriel019pira.pythonanywhere.com
+   → Leva 10 min a mais de configuração
+
+🔗 LINKS IMPORTANTES:
+   GitHub: https://github.com/gabriel019pira
+   Dashboard após deploy: https://gabriel019pira.github.io/dashboard-financeiro
+   PythonAnywhere: https://www.pythonanywhere.com
+
+✨ Está tudo pronto! Basta seguir os 4 passos acima!
