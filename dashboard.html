@@ -188,8 +188,9 @@
             margin-left: calc(-50vw + 50%);
             margin-right: calc(-50vw + 50%);
             padding: 30px !important;
+            padding-top: 60px !important;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             gap: 20px;
             overflow-x: hidden;
         }
@@ -204,8 +205,44 @@
             width: calc(100% - 60px);
         }
         
+        .chart-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: auto;
+            gap: 20px;
+            padding: 10px 0;
+            scroll-behavior: smooth;
+            cursor: grab;
+            user-select: none;
+            height: auto;
+            max-height: 700px;
+        }
+        
+        .chart-scroll-container:active {
+            cursor: grabbing;
+        }
+        
+        .chart-scroll-container::-webkit-scrollbar {
+            height: 10px;
+            width: 10px;
+        }
+        
+        .chart-scroll-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        .chart-scroll-container::-webkit-scrollbar-thumb {
+            background: #0052a3;
+            border-radius: 10px;
+        }
+        
+        .chart-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #003d7a;
+        }
+        
         .chart-item {
-            flex: 1;
+            flex: 0 0 calc(50% - 10px);
             min-width: 0;
             display: flex;
             flex-direction: column;
@@ -471,21 +508,25 @@
                     
                     <div class="chart">
                         <h3>Top Contas</h3>
-                        <div class="chart-item">
-                            <div id="chartContas" style="height: 600px;"></div>
-                        </div>
-                        <div class="chart-item">
-                            <div id="chartContasPie" style="height: 350px;"></div>
+                        <div class="chart-scroll-container" id="contasScroll">
+                            <div class="chart-item">
+                                <div id="chartContas" style="height: 600px;"></div>
+                            </div>
+                            <div class="chart-item">
+                                <div id="chartContasPie" style="height: 350px;"></div>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="chart">
                         <h3>Evolucao Mensal</h3>
-                        <div class="chart-item">
-                            <div id="chartEvolucao" style="height: 500px;"></div>
-                        </div>
-                        <div class="chart-item">
-                            <div id="chartEvolucaoPie" style="height: 350px;"></div>
+                        <div class="chart-scroll-container" id="evolucaoScroll">
+                            <div class="chart-item">
+                                <div id="chartEvolucao" style="height: 500px;"></div>
+                            </div>
+                            <div class="chart-item">
+                                <div id="chartEvolucaoPie" style="height: 350px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -526,11 +567,13 @@
                     
                     <div class="chart">
                         <h3>Entrada vs Saida</h3>
-                        <div class="chart-item">
-                            <div id="chartGanho" style="height: 600px;"></div>
-                        </div>
-                        <div class="chart-item">
-                            <div id="chartGanhoPie" style="height: 600px;"></div>
+                        <div class="chart-scroll-container" id="ganhoScroll">
+                            <div class="chart-item">
+                                <div id="chartGanho" style="height: 600px;"></div>
+                            </div>
+                            <div class="chart-item">
+                                <div id="chartGanhoPie" style="height: 350px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -571,11 +614,13 @@
                     
                     <div class="chart">
                         <h3>Top Gastos</h3>
-                        <div class="chart-item">
-                            <div id="chartGastos" style="height: 600px;"></div>
-                        </div>
-                        <div class="chart-item">
-                            <div id="chartGastosPie" style="height: 350px;"></div>
+                        <div class="chart-scroll-container" id="gastosScroll">
+                            <div class="chart-item">
+                                <div id="chartGastos" style="height: 600px;"></div>
+                            </div>
+                            <div class="chart-item">
+                                <div id="chartGastosPie" style="height: 350px;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -794,6 +839,8 @@
             renderContasCharts();
             renderGanhosCharts();
             renderGastosCharts();
+            
+            setTimeout(() => initializeChartScroll(), 100);
         }
         
         function renderInsights() {
@@ -1184,6 +1231,75 @@
         
         function format(val) {
             return 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        
+        function initializeChartScroll() {
+            const scrollContainers = document.querySelectorAll('.chart-scroll-container');
+            
+            scrollContainers.forEach(container => {
+                let isDown = false;
+                let startX;
+                let startY;
+                let scrollLeft;
+                let scrollTop;
+                
+                container.addEventListener('mousedown', (e) => {
+                    if (e.button !== 0) return;
+                    isDown = true;
+                    startX = e.pageX - container.offsetLeft;
+                    startY = e.pageY - container.offsetTop;
+                    scrollLeft = container.scrollLeft;
+                    scrollTop = container.scrollTop;
+                    container.style.cursor = 'grabbing';
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    isDown = false;
+                    container.style.cursor = 'grab';
+                });
+                
+                container.addEventListener('mouseup', () => {
+                    isDown = false;
+                    container.style.cursor = 'grab';
+                });
+                
+                container.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    
+                    const x = e.pageX - container.offsetLeft;
+                    const y = e.pageY - container.offsetTop;
+                    const walkX = (x - startX) * 1;
+                    const walkY = (y - startY) * 1;
+                    
+                    container.scrollLeft = scrollLeft - walkX;
+                    container.scrollTop = scrollTop - walkY;
+                });
+                
+                container.addEventListener('touchstart', (e) => {
+                    isDown = true;
+                    startX = e.touches[0].pageX - container.offsetLeft;
+                    startY = e.touches[0].pageY - container.offsetTop;
+                    scrollLeft = container.scrollLeft;
+                    scrollTop = container.scrollTop;
+                });
+                
+                container.addEventListener('touchend', () => {
+                    isDown = false;
+                });
+                
+                container.addEventListener('touchmove', (e) => {
+                    if (!isDown) return;
+                    
+                    const x = e.touches[0].pageX - container.offsetLeft;
+                    const y = e.touches[0].pageY - container.offsetTop;
+                    const walkX = (x - startX) * 1;
+                    const walkY = (y - startY) * 1;
+                    
+                    container.scrollLeft = scrollLeft - walkX;
+                    container.scrollTop = scrollTop - walkY;
+                });
+            });
         }
         
         window.addEventListener('load', function() {
