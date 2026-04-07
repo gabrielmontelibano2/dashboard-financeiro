@@ -76,6 +76,12 @@
             color: #fbbf24;
             font-size: 0.9em;
             min-width: 200px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            white-space: normal;
+            max-width: 400px;
+            text-align: left;
         }
         
         #fileInput { display: none; }
@@ -667,6 +673,18 @@
         
         function uploadExcel(file) {
             const status = document.getElementById('uploadStatus');
+            
+            // Verificar se está no GitHub Pages (offline)
+            if (window.location.hostname.includes('github.io')) {
+                status.textContent = '[ERRO] Upload disponível APENAS na versão local (http://localhost:5000)';
+                status.style.color = '#ef4444';
+                document.getElementById('removeFileBtn').classList.remove('show');
+                document.getElementById('uploadFileBtn').disabled = false;
+                document.getElementById('uploadFileBtn').style.opacity = '1';
+                APP.currentFile = null;
+                return;
+            }
+            
             status.textContent = '[ENVIANDO...]';
             status.style.color = '#fbbf24';
             
@@ -1161,10 +1179,38 @@
         }
         
         window.addEventListener('load', function() {
-            fetch(getServerURL() + '/saude')
-                .then(r => r.json())
-                .then(() => console.log('[SERVER] Online'))
-                .catch(() => console.warn('[SERVER] Offline'));
+            const isGitHubPages = window.location.hostname.includes('github.io');
+            const uploadFileBtn = document.getElementById('uploadFileBtn');
+            const uploadStatus = document.getElementById('uploadStatus');
+            
+            if (isGitHubPages) {
+                // GitHub Pages (sem backend)
+                uploadFileBtn.disabled = true;
+                uploadFileBtn.style.opacity = '0.3';
+                uploadFileBtn.style.cursor = 'not-allowed';
+                uploadStatus.textContent = '📌 Upload não funciona aqui. Use: http://localhost:5000';
+                uploadStatus.style.color = '#f59e0b';
+                console.log('[GITHUB PAGES] Modo visualização apenas');
+            } else {
+                // Local (com backend)
+                fetch(getServerURL() + '/saude')
+                    .then(r => r.json())
+                    .then(() => {
+                        console.log('[SERVER] Online');
+                        uploadFileBtn.disabled = false;
+                        uploadFileBtn.style.opacity = '1';
+                        uploadFileBtn.style.cursor = 'pointer';
+                        uploadStatus.textContent = '';
+                    })
+                    .catch(() => {
+                        console.error('[SERVER] Offline - servidor não encontrado');
+                        uploadFileBtn.disabled = true;
+                        uploadFileBtn.style.opacity = '0.3';
+                        uploadFileBtn.style.cursor = 'not-allowed';
+                        uploadStatus.textContent = '⚠️ Servidor não está rodando. Inicie com: python servidor_dash.py';
+                        uploadStatus.style.color = '#ef4444';
+                    });
+            }
             
             if (loadFromLocalStorage()) {
                 console.log('[STORAGE] Dados carregados');
