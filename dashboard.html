@@ -971,7 +971,11 @@
             renderGanhosCharts();
             renderGastosCharts();
             
-            setTimeout(() => initializeChartScroll(), 100);
+            // Restaurar tamanhos salvos APÓS renderizar os gráficos
+            setTimeout(() => {
+                restoreChartSizes();
+                initializeChartScroll();
+            }, 100);
         }
         
         function renderInsights() {
@@ -1372,6 +1376,13 @@
             const elem = document.getElementById(itemId);
             if (!elem) return;
             
+            const wasInEditMode = elem.classList.contains('edit-mode');
+            
+            // Se SAINDO do edit mode, salvar as dimensões atuais
+            if (wasInEditMode) {
+                saveChartItemDimensions(elem);
+            }
+            
             elem.classList.toggle('edit-mode');
             
             // Atualizar classe do botão
@@ -1386,6 +1397,21 @@
             } else {
                 removeResizeHandles(elem);
             }
+        }
+        
+        function saveChartItemDimensions(elem) {
+            const chartDiv = elem.querySelector('[id^="chart"]');
+            if (!chartDiv) return;
+            
+            const chartId = chartDiv.id;
+            const height = chartDiv.offsetHeight;
+            const widthPercent = parseFloat(elem.style.flex.match(/[\d.]+/)[0]) || 100;
+            
+            const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
+            if (!sizes[chartId]) sizes[chartId] = {};
+            sizes[chartId].height = height;
+            sizes[chartId].width = Math.round(widthPercent);
+            localStorage.setItem('chartSizes', JSON.stringify(sizes));
         }
         
         function addResizeHandles(elem) {
@@ -1454,7 +1480,7 @@
                 const newWidth = resizeData.startWidth + deltaX;
                 const containerWidth = container.offsetWidth;
                 const percentWidth = Math.max(50, Math.min(100, (newWidth / containerWidth) * 100));
-                elem.style.flex = '0 0 ' + percentWidth + '%';
+                elem.style.flex = '0 0 ' + percentWidth.toFixed(1) + '%';
             }
             
             if (direction === 'bottom' || direction === 'corner') {
@@ -1464,29 +1490,31 @@
                     const newHeight = Math.max(250, resizeData.startHeight + deltaY);
                     chartDiv.style.height = newHeight + 'px';
                     
-                    // Salvar altura
-                    const chartId = chartDiv.id;
-                    const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
-                    if (!sizes[chartId]) sizes[chartId] = {};
-                    sizes[chartId].height = newHeight;
-                    localStorage.setItem('chartSizes', JSON.stringify(sizes));
-                    
                     // Redraw
                     if (typeof Plotly !== 'undefined') {
-                        Plotly.Plots.resize(chartId);
+                        Plotly.Plots.resize(chartDiv.id);
                     }
                 }
             }
             
-            // Salvar largura
-            if (direction === 'right' || direction === 'corner') {
+            // Salvar no localStorage durante o drag
+            if (direction === 'right' || direction === 'corner' || direction === 'bottom') {
                 const chartDiv = elem.querySelector('[id^="chart"]');
                 if (chartDiv) {
                     const chartId = chartDiv.id;
-                    const percentWidth = parseFloat(elem.style.flex.match(/[\d.]+/)[0]);
                     const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
                     if (!sizes[chartId]) sizes[chartId] = {};
-                    sizes[chartId].width = Math.round(percentWidth);
+                    
+                    if (direction === 'bottom' || direction === 'corner') {
+                        sizes[chartId].height = chartDiv.offsetHeight;
+                    }
+                    if (direction === 'right' || direction === 'corner') {
+                        const flexMatch = elem.style.flex.match(/[\d.]+/);
+                        if (flexMatch) {
+                            sizes[chartId].width = Math.round(parseFloat(flexMatch[0]));
+                        }
+                    }
+                    
                     localStorage.setItem('chartSizes', JSON.stringify(sizes));
                 }
             }
@@ -1500,6 +1528,7 @@
         
         function restoreChartSizes() {
             const sizes = JSON.parse(localStorage.getItem('chartSizes') || '{}');
+            
             for (const [chartId, dimensions] of Object.entries(sizes)) {
                 const elem = document.getElementById(chartId);
                 if (!elem) continue;
@@ -1507,19 +1536,28 @@
                 const container = elem.closest('.chart-item');
                 if (!container) continue;
                 
+                // Restaurar altura do gráfico
                 if (dimensions.height) {
                     elem.style.height = dimensions.height + 'px';
                 }
                 
+                // Restaurar largura do container
                 if (dimensions.width) {
                     container.style.flex = '0 0 ' + dimensions.width + '%';
+                }
+                
+                // Redraw Plotly para aplicar novo tamanho
+                if (typeof Plotly !== 'undefined' && Plotly.Plots) {
+                    try {
+                        Plotly.Plots.resize(chartId);
+                    } catch (e) {
+                        // Gráfico pode não estar pronto ainda
+                    }
                 }
             }
         }
         
         window.addEventListener('load', function() {
-            restoreChartSizes();
-            
             const isGitHubPages = window.location.hostname.includes('github.io');
             const uploadFileBtn = document.getElementById('uploadFileBtn');
             const uploadStatus = document.getElementById('uploadStatus');
