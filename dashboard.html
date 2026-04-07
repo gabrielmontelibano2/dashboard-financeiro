@@ -388,13 +388,7 @@
             justify-content: stretch !important;
         }
         
-        #chartContasPie, #chartEvolucaoPie, #chartGanhoPie, #chartGastosPie {
-            width: 100% !important;
-            padding: 0 !important;
-            display: flex !important;
-            justify-content: stretch !important;
-        }
-        
+
         .plot-container, .plotly-graph-div {
             width: 100% !important;
             max-width: none !important;
@@ -649,13 +643,6 @@
                                 </div>
                                 <div id="chartContas" style="height: 600px; width: 100%;"></div>
                             </div>
-                            <div class="chart-item" id="item-chartContasPie">
-                                <div class="chart-item-header">
-                                    <span>Gráfico de Pizza</span>
-                                    <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartContasPie')">✏️</button>
-                                </div>
-                                <div id="chartContasPie" style="height: 350px; width: 100%;"></div>
-                            </div>
                         </div>
                     </div>
                     
@@ -668,13 +655,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartEvolucao')">✏️</button>
                                 </div>
                                 <div id="chartEvolucao" style="height: 500px; width: 100%;"></div>
-                            </div>
-                            <div class="chart-item" id="item-chartEvolucaoPie">
-                                <div class="chart-item-header">
-                                    <span>Gráfico de Pizza</span>
-                                    <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartEvolucaoPie')">✏️</button>
-                                </div>
-                                <div id="chartEvolucaoPie" style="height: 350px; width: 100%;"></div>
                             </div>
                         </div>
                     </div>
@@ -724,13 +704,6 @@
                                 </div>
                                 <div id="chartGanho" style="height: 600px; width: 100%;"></div>
                             </div>
-                            <div class="chart-item" id="item-chartGanhoPie">
-                                <div class="chart-item-header">
-                                    <span>Gráfico de Pizza</span>
-                                    <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGanhoPie')">✏️</button>
-                                </div>
-                                <div id="chartGanhoPie" style="height: 350px; width: 100%;"></div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -778,13 +751,6 @@
                                     <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGastos')">✏️</button>
                                 </div>
                                 <div id="chartGastos" style="height: 600px; width: 100%;"></div>
-                            </div>
-                            <div class="chart-item" id="item-chartGastosPie">
-                                <div class="chart-item-header">
-                                    <span>Gráfico de Pizza</span>
-                                    <button class="edit-btn-discrete" onclick="toggleEditMode('item-chartGastosPie')">✏️</button>
-                                </div>
-                                <div id="chartGastosPie" style="height: 350px; width: 100%;"></div>
                             </div>
                         </div>
                     </div>
@@ -1171,21 +1137,6 @@
                 yaxis: { tickfont: { size: 13 }, titlefont: { size: 14 }, automargin: true }
             }, {displayModeBar: false, responsive: true});
             
-            // Pizza - Top 10 Contas
-            Plotly.newPlot('chartContasPie', [{
-                labels: names.slice(0, 10),
-                values: vals.slice(0, 10),
-                type: 'pie',
-                textfont: { size: 12 },
-                textposition: 'auto',
-                hovertemplate: '<b>%{label}</b><br>%{value}<br>%{percent}<extra></extra>'
-            }], { 
-                title: { text: '📊 Distribuição de Contas', font: { size: 16, color: '#0052a3' } },
-                margin: {l: 0, r: 0, t: 80, b: 0}, 
-                height: 350,
-                font: { size: 12, family: 'Arial' }
-            }, {displayModeBar: false, responsive: true});
-            
             let evol_names = [], evol_vals = [];
             if (filterConta) {
                 evol_names = d.mesesContas;
@@ -1218,22 +1169,6 @@
                 font: { size: 14, family: 'Arial' },
                 xaxis: { tickfont: { size: 13 }, titlefont: { size: 14 }, automargin: true },
                 yaxis: { tickfont: { size: 13 }, titlefont: { size: 14 }, automargin: true }
-            }, {displayModeBar: false, responsive: true});
-            
-            // Pizza - Distribuição Mensal
-            Plotly.newPlot('chartEvolucaoPie', [{
-                labels: evol_names,
-                values: evol_vals,
-                type: 'pie',
-                textfont: { size: 11 },
-                textposition: 'auto',
-                hovertemplate: '<b>%{label}</b><br>%{customdata}<br>%{percent}<extra></extra>',
-                customdata: evol_vals.map(v => format(v))
-            }], { 
-                title: { text: '🔄 Distribuição por Mês', font: { size: 16, color: '#0052a3' } },
-                margin: {l: 0, r: 0, t: 80, b: 0}, 
-                height: 350,
-                font: { size: 12, family: 'Arial' }
             }, {displayModeBar: false, responsive: true});
         }
         
@@ -1299,25 +1234,6 @@
                 yaxis: { tickfont: { size: 13 }, titlefont: { size: 14 }, automargin: true },
                 legend: { font: { size: 14 } }
             }, {displayModeBar: false, responsive: true});
-            
-            // Pizza - Comparativo Entrada vs Saída Total
-            let totalEntradaAll = vals1.reduce((a,b) => a+b, 0);
-            let totalSaidaAll = vals2.reduce((a,b) => a+b, 0);
-            Plotly.newPlot('chartGanhoPie', [{
-                labels: ['Entrada Total', 'Saída Total'],
-                values: [totalEntradaAll, totalSaidaAll],
-                type: 'pie',
-                marker: { colors: ['#10b981', '#ef4444'] },
-                textfont: { size: 14 },
-                textposition: 'auto',
-                hovertemplate: '<b>%{label}</b><br>%{customdata}<br>%{percent}<extra></extra>',
-                customdata: [format(totalEntradaAll), format(totalSaidaAll)]
-            }], { 
-                title: { text: '✅ Proporção de Entrada vs Saída', font: { size: 16, color: '#0052a3' } },
-                margin: {l: 0, r: 0, t: 80, b: 0}, 
-                height: 350,
-                font: { size: 12, family: 'Arial' }
-            }, {displayModeBar: false, responsive: true});
         }
         
         function renderGastosCharts() {
@@ -1368,21 +1284,6 @@
                 font: { size: 14, family: 'Arial' },
                 xaxis: { tickfont: { size: 13 }, titlefont: { size: 14 }, automargin: true },
                 yaxis: { tickfont: { size: 13 }, titlefont: { size: 14 }, automargin: true }
-            }, {displayModeBar: false, responsive: true});
-            
-            // Pizza - Top 10 Gastos
-            Plotly.newPlot('chartGastosPie', [{
-                labels: names.slice(0, 10),
-                values: vals.slice(0, 10),
-                type: 'pie',
-                textfont: { size: 12 },
-                textposition: 'auto',
-                hovertemplate: '<b>%{label}</b><br>%{value}<br>%{percent}<extra></extra>'
-            }], { 
-                title: { text: '📍 Distribuição de Gastos', font: { size: 16, color: '#ef4444' } },
-                margin: {l: 0, r: 0, t: 80, b: 0}, 
-                height: 350,
-                font: { size: 12, family: 'Arial' }
             }, {displayModeBar: false, responsive: true});
         }
         
